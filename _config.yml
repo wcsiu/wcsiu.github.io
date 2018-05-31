@@ -20,9 +20,12 @@ description: >- # this means to ignore newlines until "baseurl:"
   A software developer living in Hong Kong. Golang lover.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "wachiu.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-github_username:  wachiu
+github_username: wachiu
 twitter_username: WachiuSiu
 # linkedin_username: wachiu-siu-3801568a
+disqus: 
+  shortname: wachiu-github-io
+google_analytics: UA-76348583-1
 
 # Build settings
 markdown: kramdown
