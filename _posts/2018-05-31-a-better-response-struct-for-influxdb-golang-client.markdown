@@ -3,7 +3,7 @@ comments: true
 layout: post
 title:  "A better Response struct for InfluxDB Golang client"
 date:   2018-05-31 10:31:38 +0800
-categories:
+tags:
   - InfluxDB
   - Golang
 ---
