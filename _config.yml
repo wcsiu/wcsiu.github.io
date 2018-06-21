@@ -17,7 +17,7 @@ title: wachiu.github.io
 author: Wachiu
 # email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
-  A software developer living in Hong Kong. Golang lover.
+  
 baseurl: "" # the subpath of your site, e.g. /blog
 url: https://wachiu.github.io # the base hostname & protocol for your site, e.g. http://example.com
 github_username: wachiu
