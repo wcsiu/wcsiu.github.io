@@ -4,6 +4,11 @@ title: About
 permalink: /about/
 ---
 
-A software developer living in Hong Kong. Golang lover.
+Hello. My name is Wachiu Siu. Hope you like my works. Comments and sharing are appreciated.
 
-For works I have done, feel free to visit my Github repository.
+In case you want to connect.
+
+[@WachiuSiu][twitter-link]
+
+[twitter-link]: https://twitter.com/WachiuSiu
+

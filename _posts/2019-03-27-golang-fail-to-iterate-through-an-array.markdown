@@ -8,7 +8,7 @@ tags:
 ---
 Assume you wrote code like this.
 
-{% highlight go %}
+``` go
 type something struct {
 	content string
 }
@@ -27,7 +27,7 @@ func main() {
 func Print(s *something) {
 	fmt.Println(s.content)
 }
-{% endhighlight %}
+```
 
 #### Output
 
@@ -54,7 +54,7 @@ The iteration values are reused which means the pointer to the iteration values 
 
 It would be easier to be understood with the code below.
 
-{% highlight go %}
+``` go
 type something struct {
 	content string
 }
@@ -74,7 +74,7 @@ func Print(s *something) {
 	fmt.Println(s.content)
 	fmt.Printf("[Print()] addr: %p\n",s)
 }
-{% endhighlight %}
+```
 
 #### Output
 
