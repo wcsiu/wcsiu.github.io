@@ -4,11 +4,11 @@ title: About
 permalink: /about/
 ---
 
-Hello. My name is Wachiu Siu. Hope you like my works. Comments and sharing are appreciated.
+Hi, My name is Wachiu Siu.
 
-In case you want to connect.
-
-[@WachiuSiu][twitter-link]
+#### Twitter: [@WachiuSiu][twitter-link]
+#### Linkedin: [Wachiu Siu][linkedin-link]
 
 [twitter-link]: https://twitter.com/WachiuSiu
+[linkedin-link]: https://www.linkedin.com/in/wachiu-siu/
 
