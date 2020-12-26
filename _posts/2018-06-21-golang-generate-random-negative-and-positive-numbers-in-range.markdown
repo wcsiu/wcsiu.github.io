@@ -1,10 +1,10 @@
 ---
 comments: true
 layout: post
-title:  "Generate random negative and positive integers in range in Golang"
+title:  "Generate random negative and positive integers in range in Go"
 date:   2018-06-21 18:12:32 +0800
 tags:
-  - Golang
+  - Go
 ---
 
 Golang built-in package `math/rand` provides random integer generation in  [0,n). With a little modification we can make it works for negative integers too.

@@ -1,10 +1,10 @@
 ---
 comments: true
 layout: post
-title:  "Golang reflect.DeepEqual pitfall"
+title:  "Go reflect.DeepEqual pitfall"
 date:   2018-07-06 19:00:00 +0800
 tags:
-  - Golang
+  - Go
 ---
 
 I have always been using `reflect.DeepEqual()` for checking outputs in functions to be exactly matching what is expected in testings. Recently I encountered a bug that took me a long time to find out what happened.
