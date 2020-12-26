@@ -18,7 +18,7 @@ Github demo code: [https://github.com/wcsiu/telegram-client-demo][demoRepo]
 # Let's begin.
 
 ## 1 - Create a Telegram application
-Before we start doing any programming, we need to create an app on Telegram first For details, click [here][createTelegramApp]. After this, you should have your `app_id` and `app_hash`.
+Before we start doing any programming, we need to create an app on Telegram first. For details, click [here][createTelegramApp]. After this, you should have your `app_id` and `app_hash`.
 
 ## 2 - The Client application
 To build a telegram client, we need to use a library called [TDLib][tdlibGithub]. It is library written in C++ and so we can leverage [cgo][cgo] to write our client in Go.
@@ -414,6 +414,8 @@ Just enter your account phone number with country code and press enter. Then fol
 
 ## 6 - Debug
 Besides the `docker logs`, there is error log file in `./dev/` with name `errors.txt`.
+
+# END
 
 Congrats. You got a telegram client which can fetch all you chats.
 
