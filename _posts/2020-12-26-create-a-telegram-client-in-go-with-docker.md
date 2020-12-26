@@ -1,7 +1,7 @@
 ---
 comments: true
 layout: post
-title: "Create a telegram client in Go using TDLib with Docker"
+title: "Create a Telegram client in Go using TDLib with Docker"
 date: 2020-12-26 22:36:22 +0800
 tags:
   - Go
@@ -13,7 +13,7 @@ tags:
 After this tutorial, you will be able to build a telegram client with API to retrieve chat list from it in Go. This tutorial assume you have a basic understanding of Docker, how it works and most importantly having it installed in you machine. If you don't, it would be great for you go learn [some basic concepts about it][dockerConcepts] first.
 
 # TL;DR
-Github demo code: https://github.com/wcsiu/telegram-client-demo
+Github demo code: [https://github.com/wcsiu/telegram-client-demo][demoRepo]
 
 # Let's begin.
 
@@ -419,6 +419,7 @@ Congrats. You got a telegram client which can fetch all you chats.
 
 If you find anything I can improve on this writting, feel free to leave your comments. I am still on my learning journey!
 
+[demoRepo]: https://github.com/wcsiu/telegram-client-demo
 [dockerConcepts]: https://www.docker.com/resources/what-container
 [createTelegramApp]: https://core.telegram.org/api/obtaining_api_id
 [tdlibGithub]: https://github.com/tdlib/td
