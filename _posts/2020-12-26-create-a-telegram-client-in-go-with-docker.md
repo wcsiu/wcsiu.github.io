@@ -29,7 +29,7 @@ To build a telegram client, we need to use a library called [TDLib][tdlibGithub]
 First, we need a TDLib client.
 
 {% highlight go %}
-client := tdlib.NewClient(tdlib.Config{
+client = tdlib.NewClient(tdlib.Config{
 	APIID:               "FILL YOUR API ID HERE",
 	APIHash:             "FILL YOUR API HASH HERE",
 	SystemLanguageCode:  "en",
@@ -91,13 +91,14 @@ The phone number should include country code.The above authorization code snippe
 To get all the chat names, we need to get the list of chat IDs and get chat details one by one.
 
 {% highlight go %}
-func getChatList(client *tdlib.Client, limit int) error {
-	if !haveFullChatList && limit > len(allChats) {
-		offsetOrder := int64(math.MaxInt64)
-		offsetChatID := int64(0)
-		var chatList = tdlib.NewChatListMain()
-		var lastChat *tdlib.Chat
+func getChatList(client *tdlib.Client, limit int) ([]*tdlib.Chat, error) {
+	var allChats []*tdlib.Chat
+	var offsetOrder = int64(math.MaxInt64)
+	var offsetChatID = int64(0)
+	var chatList = tdlib.NewChatListMain()
+	var lastChat *tdlib.Chat
 
+	for len(allChats) < limit {
 		if len(allChats) > 0 {
 			lastChat = allChats[len(allChats)-1]
 			for i := 0; i < len(lastChat.Positions); i++ {
@@ -110,28 +111,64 @@ func getChatList(client *tdlib.Client, limit int) error {
 		}
 
 		// get chats (ids) from tdlib
-		chats, err := client.GetChats(chatList, tdlib.JSONInt64(offsetOrder),
+		var chats, getChatsErr = client.GetChats(chatList, tdlib.JSONInt64(offsetOrder),
 			offsetChatID, int32(limit-len(allChats)))
-		if err != nil {
-			return err
+		if getChatsErr != nil {
+			return nil, getChatsErr
 		}
 		if len(chats.ChatIDs) == 0 {
-			haveFullChatList = true
-			return nil
+			return allChats, nil
 		}
 
 		for _, chatID := range chats.ChatIDs {
 			// get chat info from tdlib
-			chat, err := client.GetChat(chatID)
-			if err == nil {
+			var chat, getChatErr = client.GetChat(chatID)
+			if getChatErr == nil {
 				allChats = append(allChats, chat)
 			} else {
-				return err
+				return nil, getChatErr
 			}
 		}
-		return getChatList(client, limit)
 	}
-	return nil
+
+	return allChats, nil
+}
+{% endhighlight %}
+
+Finally, we add a HTTP router and HTTP handler for `GET /getChats`.
+
+{% highlight go %}
+http.HandleFunc("/getChats", getChatsHandler)
+http.ListenAndServe(":3000", nil)
+{% endhighlight %}
+
+{% highlight go %}
+func getChatsHandler(w http.ResponseWriter, req *http.Request) {
+	var allChats, getChatErr = getChatList(client, 1000)
+	if getChatErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(getChatErr.Error()))
+		return
+	}
+
+	var retMap = make(map[string]interface{})
+	retMap["total"] = len(allChats)
+
+	var chatTitles []string
+	for _, chat := range allChats {
+		chatTitles = append(chatTitles, chat.Title)
+	}
+
+	retMap["chatList"] = chatTitles
+
+	var ret, marshalErr = json.Marshal(retMap)
+	if marshalErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(marshalErr.Error()))
+		return
+	}
+
+	io.WriteString(w, string(ret))
 }
 {% endhighlight %}
 
@@ -141,8 +178,11 @@ Combine them all the source code would be like this.
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"math"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -151,15 +191,14 @@ import (
 	"github.com/Arman92/go-tdlib"
 )
 
-var allChats []*tdlib.Chat
-var haveFullChatList bool
+var client *tdlib.Client
 
 func main() {
 	tdlib.SetLogVerbosityLevel(1)
 	tdlib.SetFilePath("./errors.txt")
 
 	// Create new instance of client
-	client := tdlib.NewClient(tdlib.Config{
+	client = tdlib.NewClient(tdlib.Config{
 		APIID:               "FILL YOUR API ID HERE",
 		APIHash:             "FILL YOUR API HASH HERE",
 		SystemLanguageCode:  "en",
@@ -176,7 +215,7 @@ func main() {
 	})
 
 	// Handle Ctrl+C , Gracefully exit and shutdown tdlib
-	ch := make(chan os.Signal, 2)
+	var ch = make(chan os.Signal, 2)
 	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-ch
@@ -191,7 +230,7 @@ func main() {
 				fmt.Print("Enter phone: ")
 				var number string
 				fmt.Scanln(&number)
-				_, err := client.SendPhoneNumber(number)
+				var _, err = client.SendPhoneNumber(number)
 				if err != nil {
 					fmt.Printf("Error sending phone number: %v\n", err)
 				}
@@ -199,7 +238,7 @@ func main() {
 				fmt.Print("Enter code: ")
 				var code string
 				fmt.Scanln(&code)
-				_, err := client.SendAuthCode(code)
+				var _, err = client.SendAuthCode(code)
 				if err != nil {
 					fmt.Printf("Error sending auth code : %v\n", err)
 				}
@@ -207,7 +246,7 @@ func main() {
 				fmt.Print("Enter Password: ")
 				var password string
 				fmt.Scanln(&password)
-				_, err := client.SendAuthPassword(password)
+				var _, err = client.SendAuthPassword(password)
 				if err != nil {
 					fmt.Printf("Error sending auth password: %v\n", err)
 				}
@@ -220,33 +259,52 @@ func main() {
 
 	// Wait while we get Authorization Ready!
 	// Note: See authorization example for complete auhtorization sequence example
-	currentState, _ := client.Authorize()
+	var currentState, _ = client.Authorize()
 	for ; currentState.GetAuthorizationStateEnum() != tdlib.AuthorizationStateReadyType; currentState, _ = client.Authorize() {
 		time.Sleep(300 * time.Millisecond)
 	}
 
-	// get at most 1000 chats list
-	getChatList(client, 1000)
-	fmt.Printf("got %d chats\n", len(allChats))
+	http.HandleFunc("/getChats", getChatsHandler)
+	http.ListenAndServe(":3000", nil)
+}
 
+func getChatsHandler(w http.ResponseWriter, req *http.Request) {
+	var allChats, getChatErr = getChatList(client, 1000)
+	if getChatErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(getChatErr.Error()))
+		return
+	}
+
+	var retMap = make(map[string]interface{})
+	retMap["total"] = len(allChats)
+
+	var chatTitles []string
 	for _, chat := range allChats {
-		fmt.Printf("Chat title: %s \n", chat.Title)
+		chatTitles = append(chatTitles, chat.Title)
 	}
 
-	for {
-		time.Sleep(1 * time.Second)
+	retMap["chatList"] = chatTitles
+
+	var ret, marshalErr = json.Marshal(retMap)
+	if marshalErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(marshalErr.Error()))
+		return
 	}
+
+	io.WriteString(w, string(ret))
 }
 
 // see https://stackoverflow.com/questions/37782348/how-to-use-getchats-in-tdlib
-func getChatList(client *tdlib.Client, limit int) error {
+func getChatList(client *tdlib.Client, limit int) ([]*tdlib.Chat, error) {
+	var allChats []*tdlib.Chat
+	var offsetOrder = int64(math.MaxInt64)
+	var offsetChatID = int64(0)
+	var chatList = tdlib.NewChatListMain()
+	var lastChat *tdlib.Chat
 
-	if !haveFullChatList && limit > len(allChats) {
-		offsetOrder := int64(math.MaxInt64)
-		offsetChatID := int64(0)
-		var chatList = tdlib.NewChatListMain()
-		var lastChat *tdlib.Chat
-
+	for len(allChats) < limit {
 		if len(allChats) > 0 {
 			lastChat = allChats[len(allChats)-1]
 			for i := 0; i < len(lastChat.Positions); i++ {
@@ -259,28 +317,27 @@ func getChatList(client *tdlib.Client, limit int) error {
 		}
 
 		// get chats (ids) from tdlib
-		chats, err := client.GetChats(chatList, tdlib.JSONInt64(offsetOrder),
+		var chats, getChatsErr = client.GetChats(chatList, tdlib.JSONInt64(offsetOrder),
 			offsetChatID, int32(limit-len(allChats)))
-		if err != nil {
-			return err
+		if getChatsErr != nil {
+			return nil, getChatsErr
 		}
 		if len(chats.ChatIDs) == 0 {
-			haveFullChatList = true
-			return nil
+			return allChats, nil
 		}
 
 		for _, chatID := range chats.ChatIDs {
 			// get chat info from tdlib
-			chat, err := client.GetChat(chatID)
-			if err == nil {
+			var chat, getChatErr = client.GetChat(chatID)
+			if getChatErr == nil {
 				allChats = append(allChats, chat)
 			} else {
-				return err
+				return nil, getChatErr
 			}
 		}
-		return getChatList(client, limit)
 	}
-	return nil
+
+	return allChats, nil
 }
 {% endhighlight %}
 
@@ -289,19 +346,20 @@ To build our Go application with TDLib, we would need all the dependencies. To s
 
 First, for base images, we need the dependencies and Go compiler.
 
+Go Compiler:
 {% highlight docker %}
-FROM wcsiu/tdlib:1.7.0 AS base
 FROM golang:1.15 AS golang
 {% endhighlight %}
 
 Then, we put the dependencies in places as `Arman92/go-tdlib` wants them to be.
 
+Dependencies:
 {% highlight docker %}
-COPY --from=base /usr/local/include/td /usr/local/include/td
-COPY --from=base /usr/local/lib/libtd* /usr/local/lib/
-COPY --from=base /usr/lib/x86_64-linux-gnu/libssl.a /usr/local/lib/libssl.a
-COPY --from=base /usr/lib/x86_64-linux-gnu/libcrypto.a /usr/local/lib/libcrypto.a
-COPY --from=base /usr/lib/x86_64-linux-gnu/libz.a /usr/local/lib/libz.a
+COPY --from=wcsiu/tdlib:1.7.0 /usr/local/include/td /usr/local/include/td
+COPY --from=wcsiu/tdlib:1.7.0 /usr/local/lib/libtd* /usr/local/lib/
+COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libssl.a /usr/local/lib/libssl.a
+COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libcrypto.a /usr/local/lib/libcrypto.a
+COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libz.a /usr/local/lib/libz.a
 {% endhighlight %}
 
 We build the Go application.
@@ -321,6 +379,12 @@ COPY --from=golang /tmp/demo-exe /demo-runner
 
 We move our client executable into a very minimal base image, [distroless][distrolessGithub]. With this extra stage, our image size shrink significantly.
 
+We then expose port 3000 of the container for the HTTP router to be able to receive external call.
+
+{% highlight docker %}
+EXPOSE 3000
+{% endhighlight %}
+
 Final step, run the executable.
 
 {% highlight docker %}
@@ -329,14 +393,13 @@ ENTRYPOINT [ "/demo-runner" ]
 
 The complete Dockerfile:
 {% highlight docker %}
-FROM wcsiu/tdlib:1.7.0 AS base
 FROM golang:1.15 AS golang
 
-COPY --from=base /usr/local/include/td /usr/local/include/td
-COPY --from=base /usr/local/lib/libtd* /usr/local/lib/
-COPY --from=base /usr/lib/x86_64-linux-gnu/libssl.a /usr/local/lib/libssl.a
-COPY --from=base /usr/lib/x86_64-linux-gnu/libcrypto.a /usr/local/lib/libcrypto.a
-COPY --from=base /usr/lib/x86_64-linux-gnu/libz.a /usr/local/lib/libz.a
+COPY --from=wcsiu/tdlib:1.7.0 /usr/local/include/td /usr/local/include/td
+COPY --from=wcsiu/tdlib:1.7.0 /usr/local/lib/libtd* /usr/local/lib/
+COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libssl.a /usr/local/lib/libssl.a
+COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libcrypto.a /usr/local/lib/libcrypto.a
+COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libz.a /usr/local/lib/libz.a
 
 WORKDIR /demo
 
@@ -348,6 +411,7 @@ RUN go build --ldflags "-extldflags '-static -L/usr/local/lib -ltdjson_static -l
 
 FROM gcr.io/distroless/base:latest
 COPY --from=golang /tmp/demo-exe /demo-runner
+EXPOSE 3000
 ENTRYPOINT [ "/demo-runner" ]
 {% endhighlight %}
 
@@ -381,11 +445,15 @@ services:
     image: telegram-client-demo
     container_name: telegram-client-demo
     hostname: telegram-client-demo
+    expose:
+      - "3000"
     volumes:
       - "./dev:/demo"
     working_dir: /demo
     stdin_open: true
     tty: true
+    ports:
+      - 3000:3000
 {% endhighlight %}
 
 To run the application, we can just this command.
@@ -407,10 +475,35 @@ Attaching to telegram-client-demo
 You need to `docker attach` to the running container to do your first time authorization. After that, your credentials would in the `./dev/`. 
 
 {% highlight shell %}
-docker attach telegram-client-demo
+$ docker attach telegram-client-demo
+85233333333 #your phone number with country code
+Enter code: 
+94757
+Authorization Ready! Let's rock
 {% endhighlight %}
 
-Just enter your account phone number with country code and press enter. Then follow the instruction until it is set.
+Just enter your account phone number with country code and press enter. Then follow the instructions until it is set.
+
+We can now try to make a `GET` request to our container exposed port 3000.
+
+{% highlight shell %}
+$ curl -v http://localhost:3000/getChats
+*   Trying ::1...
+* TCP_NODELAY set
+* Connected to localhost (::1) port 3000 (#0)
+> GET /getChats HTTP/1.1
+> Host: localhost:3000
+> User-Agent: curl/7.64.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Sun, 27 Dec 2020 15:47:48 GMT
+< Content-Length: 308
+< Content-Type: text/plain; charset=utf-8
+<
+* Connection #0 to host localhost left intact
+{"chatList":["a","b","c"],"total":3}* Closing connection 0
+{% endhighlight %}
 
 ## 6 - Debug
 Besides the `docker logs`, there is error log file in `./dev/` with name `errors.txt`.
