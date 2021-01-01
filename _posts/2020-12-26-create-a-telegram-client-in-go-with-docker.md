@@ -168,6 +168,7 @@ func getChatsHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	io.WriteString(w, string(ret))
 }
 {% endhighlight %}
@@ -293,6 +294,7 @@ func getChatsHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	io.WriteString(w, string(ret))
 }
 
@@ -348,18 +350,19 @@ First, for base images, we need the dependencies and Go compiler.
 
 Go Compiler:
 {% highlight docker %}
-FROM golang:1.15 AS golang
+FROM golang:1.15-alpine AS golang
 {% endhighlight %}
 
 Then, we put the dependencies in places as `Arman92/go-tdlib` wants them to be.
 
 Dependencies:
 {% highlight docker %}
-COPY --from=wcsiu/tdlib:1.7.0 /usr/local/include/td /usr/local/include/td
-COPY --from=wcsiu/tdlib:1.7.0 /usr/local/lib/libtd* /usr/local/lib/
-COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libssl.a /usr/local/lib/libssl.a
-COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libcrypto.a /usr/local/lib/libcrypto.a
-COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libz.a /usr/local/lib/libz.a
+COPY --from=wcsiu/tdlib:1.7-alpine /usr/local/include/td /usr/local/include/td
+COPY --from=wcsiu/tdlib:1.7-alpine /usr/local/lib/libtd* /usr/local/lib/
+COPY --from=wcsiu/tdlib:1.7-alpine /usr/lib/libssl.a /usr/local/lib/libssl.a
+COPY --from=wcsiu/tdlib:1.7-alpine /usr/lib/libcrypto.a /usr/local/lib/libcrypto.a
+COPY --from=wcsiu/tdlib:1.7-alpine /lib/libz.a /usr/local/lib/libz.a
+RUN apk add build-base
 {% endhighlight %}
 
 We build the Go application.
@@ -393,13 +396,14 @@ ENTRYPOINT [ "/demo-runner" ]
 
 The complete Dockerfile:
 {% highlight docker %}
-FROM golang:1.15 AS golang
+FROM golang:1.15-alpine AS golang
 
-COPY --from=wcsiu/tdlib:1.7.0 /usr/local/include/td /usr/local/include/td
-COPY --from=wcsiu/tdlib:1.7.0 /usr/local/lib/libtd* /usr/local/lib/
-COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libssl.a /usr/local/lib/libssl.a
-COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libcrypto.a /usr/local/lib/libcrypto.a
-COPY --from=wcsiu/tdlib:1.7.0 /usr/lib/x86_64-linux-gnu/libz.a /usr/local/lib/libz.a
+COPY --from=wcsiu/tdlib:1.7-alpine /usr/local/include/td /usr/local/include/td
+COPY --from=wcsiu/tdlib:1.7-alpine /usr/local/lib/libtd* /usr/local/lib/
+COPY --from=wcsiu/tdlib:1.7-alpine /usr/lib/libssl.a /usr/local/lib/libssl.a
+COPY --from=wcsiu/tdlib:1.7-alpine /usr/lib/libcrypto.a /usr/local/lib/libcrypto.a
+COPY --from=wcsiu/tdlib:1.7-alpine /lib/libz.a /usr/local/lib/libz.a
+RUN apk add build-base
 
 WORKDIR /demo
 
