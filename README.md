@@ -5,7 +5,7 @@
 
 ```sh
 #install ruby dependencies
-$ bundle install --path vendor/bundle
+$ bundle config set --local path 'vendor/bundle'
 #run locally
 $ bundle exec jekyll serve
 ```

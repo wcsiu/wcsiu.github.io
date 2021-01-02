@@ -46,6 +46,9 @@ header_pages:
 # Build settings
 theme: minima
 
+url: "https://wcsiu.github.io"
+
 plugins:
  - jekyll-feed
  - jekyll-seo-tag
+ - jekyll-sitemap
