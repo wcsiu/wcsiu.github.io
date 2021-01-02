@@ -1,6 +1,9 @@
 title: WachiuSiu
 author: Wachiu Siu
 description: >-
+  This is Wachiu Siu's personal website. Tech focused.
+
+tagline: "Wachiu Siu's personal website."
 
 show_excerpts: false # set to true to show excerpts on the homepage
 
@@ -8,6 +11,23 @@ show_excerpts: false # set to true to show excerpts on the homepage
 # refer to https://shopify.github.io/liquid/filters/date/ if you want to customize this
 minima:
   date_format: "%b %-d, %Y"
+  social_links:
+    github: wcsiu
+    twitter: WachiuSiu
+    linkedin: wachiu-siu
+
+social:
+  name: Wachiu Siu
+  links:
+    - https://twitter.com/WachiuSiu
+    - https://www.linkedin.com/in/wachiu-siu
+    - https://github.com/wcsiu
+
+logo: /favicon.png
+
+google_site_verification: hlfyf0uj15OpsSRhocX2D0AgUhGFysNgP_bs_4n6Hvk
+
+google_analytics: UA-139884545-1
 
 markdown: kramdown
 
