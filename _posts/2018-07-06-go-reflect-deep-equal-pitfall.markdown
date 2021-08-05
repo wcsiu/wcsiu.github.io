@@ -1,7 +1,7 @@
 ---
 comments: true
 layout: post
-title:  "Go reflect.DeepEqual pitfall"
+title:  "Go reflect.DeepEqual pitfall - time.Time"
 date:   2018-07-06 19:00:00 +0800
 tags:
   - Go

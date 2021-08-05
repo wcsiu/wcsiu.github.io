@@ -1,7 +1,7 @@
 ---
 comments: true
 layout: post
-title:  "Go fail to iterate through an array"
+title:  "Go fail to iterate through a slice - slice pointer"
 date:   2019-04-01 16:04:46 +0800
 tags:
   - Go
