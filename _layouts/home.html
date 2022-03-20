@@ -11,10 +11,6 @@ layout: default
 
   {%- if site.posts.size > 0 -%}
 
-  <blockquote>
-    <h3>A Software engineer based in Hong Kong.</h3>
-  </blockquote>
-  
   <h2 class="post-list-heading">{{ page.list_title | default: "Posts" }}</h2>
   <ul class="post-list">
     {%- for post in site.posts -%}

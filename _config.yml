@@ -1,9 +1,5 @@
-title: WachiuSiu
+title: wcsiu
 author: Wachiu Siu
-description: >-
-  This is Wachiu Siu's personal website. Tech focused.
-
-tagline: "Wachiu Siu's personal website."
 
 show_excerpts: false # set to true to show excerpts on the homepage
 
@@ -12,16 +8,12 @@ show_excerpts: false # set to true to show excerpts on the homepage
 minima:
   date_format: "%b %-d, %Y"
   social_links:
-    github: wcsiu
-    twitter: WachiuSiu
     linkedin: wachiu-siu
 
 social:
   name: Wachiu Siu
   links:
-    - https://twitter.com/WachiuSiu
     - https://www.linkedin.com/in/wachiu-siu
-    - https://github.com/wcsiu
 
 logo: /favicon.png
 
