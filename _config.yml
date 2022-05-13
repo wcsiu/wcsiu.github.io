@@ -38,7 +38,7 @@ header_pages:
 # Build settings
 theme: minima
 
-url: "https://wcsiu.github.io"
+url: "https://wcsiu.com"
 
 plugins:
  - jekyll-feed
