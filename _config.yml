@@ -1,5 +1,5 @@
 title: wcsiu
-author: Wachiu Siu
+author: Wachiu-siu
 
 show_excerpts: false # set to true to show excerpts on the homepage
 
@@ -10,16 +10,9 @@ minima:
   social_links:
     linkedin: wachiu-siu
 
-social:
-  name: Wachiu Siu
-  links:
-    - https://www.linkedin.com/in/wachiu-siu
-
 logo: /favicon.png
 
-google_site_verification: hlfyf0uj15OpsSRhocX2D0AgUhGFysNgP_bs_4n6Hvk
-
-google_analytics: UA-139884545-1
+google_analytics: G-Y6PECHJ13P
 
 markdown: kramdown
 
@@ -27,7 +20,7 @@ kramdown:
   input: GFM
   syntax_highlighter: rouge
 
-disqus: 
+disqus:
   shortname: wcsiu-github-io
 
 # If you want to link only specific pages in your header, uncomment
