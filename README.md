@@ -1,4 +1,4 @@
-# wcsiu.github.io
+# wcsiu
 
 > Personal blog
 
